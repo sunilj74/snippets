@@ -1,0 +1,7 @@
+{
+  "category": "Angular",
+  "name": "ngFor",
+  "paramInfo": "{\r\n   \"tag\": {\r\n      \"label\": \"tag\",\r\n      \"value\": \"div\",\r\n      \"prefix\": \"\",\r\n      \"suffix\": \"\",\r\n      \"options\": null,\r\n      \"multiline\": false\r\n   },\r\n   \"item\": {\r\n      \"label\": \"item\",\r\n      \"value\": \"item\",\r\n      \"prefix\": \"\",\r\n      \"suffix\": \"\",\r\n      \"options\": null,\r\n      \"multiline\": false\r\n   },\r\n   \"collection\": {\r\n      \"label\": \"collection\",\r\n      \"value\": \"collection\",\r\n      \"prefix\": \"\",\r\n      \"suffix\": \"\",\r\n      \"options\": null,\r\n      \"multiline\": false\r\n   },\r\n   \"idx\": {\r\n      \"label\": \"idx\",\r\n      \"value\": \"i\",\r\n      \"prefix\": \"\",\r\n      \"suffix\": \"\",\r\n      \"options\": null,\r\n      \"multiline\": false\r\n   },\r\n   \"code\": {\r\n      \"label\": \"code\",\r\n      \"value\": \"\",\r\n      \"multiline\": true,\r\n      \"prefix\": \"\",\r\n      \"suffix\": \"\",\r\n      \"options\": null\r\n   }\r\n}",
+  "code": "<[#]tag[/#] *ngFor=\"let [#]item[/#] of [#]collection[/#]; let [#]idx[/#]=index;\">\r\n[#]code[/#]\r\n</[#]tag[/#]>\r\n",
+  "overwrite": true
+}

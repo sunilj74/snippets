@@ -1,0 +1,12 @@
+{
+  "name": "snippet",
+  "version": "1.0.0",
+  "description": "Code Snippets",
+  "main": "buildsnippets.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node buildsnippets"
+  },
+  "author": "Sunil Joseph",
+  "license": "ISC"
+}

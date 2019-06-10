@@ -1,0 +1,7 @@
+{
+  "category": "Form Fields",
+  "name": "field",
+  "paramInfo": "{\r\n   \"fieldid\": {\r\n      \"label\": \"fieldid\",\r\n      \"value\": \"fieldid\",\r\n      \"multiline\": false,\r\n      \"prefix\": \"\",\r\n      \"suffix\": \"\",\r\n      \"options\": null\r\n   },\r\n   \"fieldlabel\": {\r\n      \"label\": \"fieldlabel\",\r\n      \"value\": \"fieldlabel\",\r\n      \"multiline\": false,\r\n      \"prefix\": \"\",\r\n      \"suffix\": \"\",\r\n      \"options\": null\r\n   },\r\n   \"model\": {\r\n      \"label\": \"model\",\r\n      \"value\": \"model\",\r\n      \"multiline\": false,\r\n      \"prefix\": \"\",\r\n      \"suffix\": \"\",\r\n      \"options\": null\r\n   },\r\n   \"placeholder\": {\r\n      \"label\": \"placeholder\",\r\n      \"value\": \"placeholder\",\r\n      \"multiline\": false,\r\n      \"prefix\": \"\",\r\n      \"suffix\": \"\",\r\n      \"options\": null\r\n   }\r\n}",
+  "code": "<div class=\"form-group  col-xs-12 col-sm-6 col-md-2\">\r\n    <label for=\"[#]fieldid[/#]\">[#]fieldlabel[/#]</label>\r\n    <input type=\"text\" class=\"form-control\" id=\"[#]fieldid[/#]\" name=\"[#]fieldid[/#]\" [(ngModel)]=\"[#]model[/#].[#]fieldid[/#]\" placeholder=\"[#]placeholder[/#]\">\r\n</div>\r\n",
+  "overwrite": true
+}

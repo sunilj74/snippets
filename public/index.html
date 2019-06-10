@@ -1,0 +1,274 @@
+<html style="width: 100%; height: 100%;">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="favicon.ico">
+    <title>Code Wizard</title>
+    <base href="/Main/">
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap theme -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" rel="stylesheet">
+
+    <style>
+        .pct100 {
+            height: 100%;
+            margin-top: 0px;
+            margin-bottom: 0px;
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+
+        .flex-col {
+            display: flex;
+            flex-flow: column;
+        }
+
+        .flex-col-fill {
+            flex: auto;
+            overflow-y: auto;
+        }
+
+        .panel-heading .toggle:after {
+            font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
+            content: "\e114";    /* adjust as needed, taken from bootstrap.css */
+            float: right;        /* adjust as needed */
+            color: grey;         /* adjust as needed */
+        }
+
+        .panel-heading .toggle.collapsed:after {
+            content: "\e080";    /* adjust as needed, taken from bootstrap.css */
+        }
+    </style>
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <!-- BootStrap JS library -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="/assets/scripts/snippet.js"></script>
+</head>
+<body class="pct100" style="font-family: 'Segoe UI'; width:100%; ">
+    <nav id="mainNav" class="navbar navbar-inverse navbar-fixed-top">
+        <div class="navbar-header">
+            <div class="navbar-brand">
+                <span>Code Wizard</span>
+            </div>
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <div class="nav navbar-nav navbar-left"></div>
+            <div class="nav navbar-nav navbar-right">
+                <button type="button" class="btn btn-sm btn-primary" id="btnSnippetBuffer" style="margin-top: 10px; margin-right: 10px;">Code Buffer</button>&nbsp;&nbsp;&nbsp;
+            </div>
+            <div class="nav navbar-nav navbar-center">
+                <div id="alertMe"></div>
+            </div>
+        </div>
+    </nav>
+    <div class="container-fluid pct100" style="padding-bottom: 20px;">
+        <div class="col-xs-12 col-md-12 pct100 flex-col" style="border-right: 1px solid lightgray; padding-right: 10px;">
+            <br />
+            <div class="page-header">
+                <h1>Snippets</h1>
+            </div>
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a class="toggle collapsed" data-toggle="collapse" id="snippetToggle" href="#generateSnippet">Add/Update Snippet</a>
+                    </h4>
+                </div>
+                <div id="generateSnippet" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <form class="form-horizontal" id="addSnippet" method="post">
+                            <div class="form-group">
+                                <label class="control-label col-xs-3" for="name">Name:</label>
+                                <div class="col-xs-9">
+                                    <input type="text" class="form-control" name="name" id="name" placeholder="Snippet Name">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-xs-3" for="category">Category:</label>
+                                <div class="col-xs-9">
+                                    <input type="text" class="form-control" name="category" id="category" placeholder="Snippet Category">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-xs-3" for="overwrite">Update:</label>
+                                <div class="col-xs-9">
+                                    <input type="checkbox" class="checkbox" name="overwrite" id="overwrite" value="true">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-xs-3" for="code">Code:</label>
+                                <div class="col-xs-9">
+                                    <textarea class="form-control" rows="8" id="code" name="code" placeholder="snippet code ..."></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-xs-3" for="paramInfo">Parameters:</label>
+                                <div class="col-xs-9">
+                                    <textarea class="form-control" rows="17" id="paramInfo" name="paramInfo" placeholder="Parameter Info in JSON format&#10;{&#10;   name: {&#10;      label: '',&#10;      default: '',&#10;      prefix: '',&#10;      suffix: ''&#10;   }&#10;}&#10;"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-xs-offset-4 col-xs-8">
+                                    <button type="submit" id="btnAddSnippet" class="btn btn-primary pull-right" style="margin-left: 10px;">Save Snippet</button>
+                                    <button type="button" id="btnUpdateParameterInfo" class="btn btn-primary pull-right">Rebuild Parameters</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="row flex-col-fill pct100">
+                <div class="col-xs-9 pct100" id="snippetList" style="overflow: auto; padding-right: 5px;"></div>
+                <div class="col-xs-3 pct100" id="snippetPills" style="border-left: 1px solid gold; overflow-y: auto; padding-left: 5px;"></div>
+            </div>
+    </div>
+    </div>
+    <div class="modal fade" id="snippetModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" style="width:75%;" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <table style="width: 100%">
+                        <tbody>
+                            <tr>
+                                <td style="width: 200px">
+                                    <h4 class="modal-title" id="snippetModalLabel">Generate Snippet</h4>
+                                </td>
+                                <td style="width: 300px;">
+                                    <select name="selectSnippetCategory" id="selectSnippetCategory" class="form-control" onchange="selectSnippetCategoryChanged()"></select>
+                                </td>
+                                <td style="width: 10px">&nbsp;</td>
+                                <td style="width: 300px;">
+                                    <select name="selectSnippetName" id="selectSnippetName" class="form-control" onchange="selectSnippetNameChanged()"></select>
+                                </td>
+                                <td style="width: auto">&nbsp;</td>
+                                <td style="width: 100px;">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+                <div class="modal-body" id="snippetModalContent">
+                    <div class="row">
+                        <div class="col-xs-4" id="snippetForms" style="overflow: auto;"></div>
+                        <div class="col-xs-8" style="height: 600px; border-left: 1px solid gold; overflow: auto;">
+                            <table style="width: 100%; max-height: 100%">
+                                <tbody>
+                                    <tr><td style="border-bottom: 1px solid gold; padding-bottom: 5px;"><div id="snippetGeneratedCode" style="font-family: monospace; white-space: pre;"></div></td></tr>
+                                    <tr>
+                                        <td style="overflow-y: auto;">
+                                            <div id="snippetBufferBody" style="width: 100%; margin-top: 5px;"></div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="SNIPPETBUFFER.length=0; SNIPPETPOSITION=-1; buildSnippetBuffer()">Clear</button>
+                    <label for="snippetIndent">Indent</label>
+                    <input type="number" min="0" step="1" class="form-control" name="snippetIndent" id="snippetIndent" style="text-align: right; width: 50px; display: inline; margin-left: 5px; margin-right: 10px;" value="0" />
+                    <button type="button" class="btn btn-primary" onclick="ctrlC2Buffer('snippetGeneratedCode')">Insert</button>
+                    <button type="button" class="btn btn-primary" onclick="ctrlC('snippetGeneratedCode')">Copy</button>
+                    <button type="button" class="btn btn-success" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="snippetBufferModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" style="width:75%;" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="snippetBufferLabel">Code Buffer</h4>
+                </div>
+                <div class="modal-body" id="snippetBufferContent">
+                    <div style="height: 600px;">
+                        <textarea style="width: 100%; height: 100%; font-family: monospace;" id="snippetBufferCode" onblur="snippetBufferChanged()" onkeyup="snippetBufferChanged()" onpaste="snippetBufferChanged()"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="btnSnippetBufferClear" >Clear</button>
+                    <button type="button" class="btn btn-success" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function(){
+            $("#btnSnippetBufferClear").click(function(){
+                SNIPPETBUFFER.length = 0;
+                SNIPPETPOSITION = -1;
+                $("#snippetBufferCode").val(SNIPPETBUFFER.join("\n"));
+            });
+
+            $("#btnSnippetBuffer").click(function(){
+                $("#snippetBufferCode").val(SNIPPETBUFFER.join("\n"));
+                $('#snippetBufferModal').modal({
+                    show: true
+                });
+            });
+
+            $("#btnGenerate").click(function(){
+                var data = {
+                    moduleCode: $("#moduleCode").val(),
+                    moduleTitle: $("#moduleTitle").val(),
+                    noIncludeCancel: $("#noIncludeCancel").prop("checked"),
+                    indexData: $("#indexData").val(),
+                    viewGraphUrl: $("#viewGraphUrl").val(),
+                    viewKey: $("#viewKey").val(),
+                    viewSections: $("#viewSections").val()
+                };
+                localStorage.setItem("genInfo", JSON.stringify(data));
+            });
+
+            $("#btnAddSnippet").click(function(e) {
+                clearAlert();
+                $.ajax({
+                    type: "POST",
+                    url: "/Default/AddSnippet",
+                    data: $("#addSnippet").serialize(),
+                    success: function(data)
+                    {
+                        showAlert("success",true, "snippet saved!")
+                        snippetEditor(false);
+                        console.log(data);
+                        pullSnippets();
+                    },
+                    error: function(err){
+                        showAlert("danger", false, "snippet could not be saved - "+err.statusText);
+                        console.log(err);
+                    }
+                });
+                e.preventDefault();
+            });
+
+
+            $("#btnUpdateParameterInfo").click(function(e) {
+                var code=$("#code").val();
+                var paramText=$("#paramInfo").val();
+                var data = snippetCodeParams(code, paramText, true);
+                paramText = JSON.stringify(data, null, '   ');
+                $("#paramInfo").val(paramText);
+            });
+
+            pullSnippets();
+        });
+    </script>
+</body>
+</html>
