@@ -1,5 +1,7 @@
+var SNIPPETDATA = [];
 var SNIPPETS = [];
 var SNIPPETAPPLY = {};
+var SNIPPETCATEGORIES = [];
 var SNIPPETCATEGORY = "";
 var SNIPPETBUFFER = [];
 var SNIPPETPOSITION = -1;
@@ -54,7 +56,7 @@ function ctrlC2Buffer(target){
 
 function buildSnippetBuffer(){
     var sb=[];
-    sb.push("<table>");
+    sb.push("<table class='width100'>");
     sb.push("<tbody>");
     for(var i=0;i<=SNIPPETBUFFER.length;i++){
         var j = -1;
@@ -63,17 +65,13 @@ function buildSnippetBuffer(){
             j = i;
             line = SNIPPETBUFFER[i];
         }
-        sb.push("<tr>");
-        sb.push("<td style='width: 30px; text-align: center; border-right: 1px solid gold; padding-left:5px; padding-right: 5px; ' id='snippetLine"+j+"' onclick='snippetBufferLine("+j+")'>");
-        if(SNIPPETPOSITION==j){
-            sb.push("<span class='glyphicon glyphicon-play' style='color: green;'></span>");
+        var bufferRow = "buffer-row";
+        if (SNIPPETPOSITION == j) {
+            bufferRow = bufferRow + " buffer-row-selected";
         }
-        else{
-            sb.push("<span></span>");
-        }
-        sb.push("</td>");
-        sb.push("<td style='width: 10px;'>&nbsp;</td>");
-        sb.push("<td style='font-family: monospace; white-space: pre; padding: 0px; line-height: 0px;'>");
+        sb.push("<tr id='snippetLine" + j + "' onclick='snippetBufferLine(" + j +")' class='"+bufferRow+"'>");
+        sb.push("<td style='width: 1px; '>&nbsp;</td>");
+        sb.push("<td class='buffer-line'>");
         sb.push(escapeHtml(line));
         sb.push("</td>");
         sb.push("</tr>");
@@ -86,10 +84,9 @@ function buildSnippetBuffer(){
 function selectSnippetCategoryChanged(){
     var cat = $("#selectSnippetCategory").val();
     var sb=[];
-    var snippets = SNIPPETS[cat];
-    if(snippets!=null){
-        for(var name in snippets){
-            sb.push("<option value='"+name+"'>"+name+"</option>");
+    for(var i=0;i<SNIPPETDATA.length;i++){
+        if(SNIPPETDATA[i].category==cat){
+            sb.push("<option value='"+i+"'>"+SNIPPETDATA[i].name+"</option>");
         }
     }
     $("#selectSnippetName").html(sb.join("\n"));
@@ -97,12 +94,10 @@ function selectSnippetCategoryChanged(){
 }
 
 function selectSnippetNameChanged(){
-    var cat = $("#selectSnippetCategory").val();
-    var name = $("#selectSnippetName").val();
-    if(SNIPPETS!=null&&SNIPPETS[cat]!=null&&SNIPPETS[cat][name]!=null){
-        snippetApply(SNIPPETS[cat][name], false);
+    var idx = $("#selectSnippetName").val();
+    if(idx>=0 && SNIPPETDATA.length>idx){
+        snippetApply(SNIPPETDATA[idx]);
     }
-
 }
 
 function snippetBufferChanged(){
@@ -112,9 +107,10 @@ function snippetBufferChanged(){
 }
 
 function snippetBufferLine(lineNo){
-    $("#snippetLine"+SNIPPETPOSITION).html("<span></span>");
+    $("#snippetLine" + SNIPPETPOSITION).removeClass("buffer-row-selected");
     SNIPPETPOSITION = lineNo;
-    $("#snippetLine"+SNIPPETPOSITION).html("<span class='glyphicon glyphicon-play' style='color: green;'></span>");
+    $("#snippetLine" + SNIPPETPOSITION).addClass("buffer-row-selected");
+
 }
 
 function showAlert(type, autoClose, message){
@@ -133,12 +129,13 @@ function clearAlert(){
 function pullSnippets(){
     $.ajax({
         type: "GET",
-        url: "/assets/scripts/data.json",
+        url: "/assets/scripts/data2.json",
         success: function(data)
         {
             console.log(data);
             if(data != null){
-                SNIPPETS = data;
+                SNIPPETDATA = data;
+                analyzeSnippetData();
                 buildSnippetCategories();
             }
         },
@@ -146,17 +143,39 @@ function pullSnippets(){
             console.log(err);
         }
     });
+}
 
+function checkSnippetCategoryExists(cat){
+    var found = false;
+    for (var j = 0; j < SNIPPETCATEGORIES.length; j++) {
+        if (SNIPPETCATEGORIES[j] == cat) {
+            found = true;
+            break;
+        }
+    }
+    return found;
+}
+
+function analyzeSnippetData(){
+    SNIPPETCATEGORIES.length=0;
+    for(var i=0;i<SNIPPETDATA.length;i++){
+        var category = SNIPPETDATA[i].category;
+        if (!checkSnippetCategoryExists(category)){
+            SNIPPETCATEGORIES.push(category);
+        }
+    }
 }
 
 function buildSnippetCategories(){
     var ob=[];
     var sb=[];
-    sb.push('<ul class="nav nav-pills nav-stacked">');
-    for(var cat in SNIPPETS){
+    var cats=SNIPPETDATA;
+    sb.push('<ul class="nav nav-pills">');
+    for(var i=0;i<SNIPPETCATEGORIES.length;i++){
+        var cat = SNIPPETCATEGORIES[i];
         if(SNIPPETCATEGORY==null||SNIPPETCATEGORY.length==0||SNIPPETCATEGORY==cat){
             SNIPPETCATEGORY = cat;
-            sb.push('<li class="active" style="cursor: pointer;">');
+            sb.push('<li class="nav-item active" style="cursor: pointer;">');
         }
         else{
             sb.push('<li style="cursor: pointer;">');
@@ -183,12 +202,16 @@ function escapeHtml(code){
 
 function buildSnippets(cat){
     var sb=[];
-    var snippets = SNIPPETS[cat];
+    var snippets = SNIPPETDATA;
     if(snippets!=null){
         SNIPPETCATEGORY = cat;
         var i=0;
-        for(var name in snippets){
-            var snippet = snippets[name];
+        for (var j = 0; j < snippets.length;j++){
+            var snippet = snippets[j];
+            if(snippet.category!=cat){
+                continue;
+            }
+            var name = snippet.name;
             sb.push('<div style="');
             if(i>0){
                 sb.push('margin-top: 15px; padding-top: 15px; border-top: 1px dashed gray;');
@@ -196,12 +219,16 @@ function buildSnippets(cat){
             i++;
             sb.push('">');
             sb.push('<div style="padding: 0px;">');
-            sb.push('<a style="margin-top: 0px; font-weight: bold; font-size: larger; color: gray; margin-right: 10px;" href="javascript:snippetAction(0, \''+cat+'\',\''+snippet.name+'\')">');
+            sb.push('<a style="text-decoration: underline; margin-top: 0px; font-weight: bold; font-size: larger; color: gray; margin-right: 10px;" href="javascript:snippetAction(0, \'' + cat + '\',\'' + snippet.name + '\',' + j +')">');
             sb.push(snippet.name);
             sb.push('</a>');
-            sb.push('<span class="glyphicon glyphicon-pencil" style="color: gold; margin-left: 1px; cursor: pointer;" onclick="snippetAction(1, \''+cat+'\',\''+snippet.name+'\')"></span>');
-            sb.push('<span class="glyphicon glyphicon-remove-sign" style="color: darkred; margin-left: 1px; cursor: pointer;" onclick="snippetAction(2, \''+cat+'\',\''+snippet.name+'\')"></span>');
+            sb.push('<span class="glyphicon glyphicon-pencil" style="color: teal; margin-left: 1px; cursor: pointer;" onclick="snippetAction(1, \'' + cat + '\',\'' + snippet.name + '\',' + j +')"></span>');
+            sb.push('<span class="glyphicon glyphicon-remove-sign" style="color: darkred; margin-left: 1px; cursor: pointer;" onclick="snippetAction(2, \'' + cat + '\',\'' + snippet.name + '\',' + j +')"></span>');
             sb.push('</div>');
+            sb.push("<div>");
+            sb.push(snippet.description);
+            sb.push("</div>");
+
             sb.push('<div style="font-family: monospace; white-space: pre; width: 100%; overflow-x: hidden; overflow-y: auto;">');
             var data = snippetCodeParams(snippet.code, snippet.paramInfo, false);
             var code = snippetSubstitute(snippet.code, data);
@@ -265,23 +292,21 @@ function snippetCodeParams(code, paramText, alertOnError){
     return data;
 }
 
-function snippetAction(action, cat, name){
-    debugger;
+function snippetAction(action, cat, name, idx){
     var snippet = null;
-    if(SNIPPETS[cat]!=null){
-        var namedSnippets = SNIPPETS[cat];
-        snippet=namedSnippets[name];
+    if(idx>=0&&idx<SNIPPETDATA.length){
+        snippet=SNIPPETDATA[idx];
     }
     if(snippet!=null){
        if(action==0){
           snippetApply(snippet, true);
        }
        else if(action==1){
-          snippetEdit(snippet);
+          snippetEdit(snippet, idx);
        }
        else if(action==2){
           if(window.confirm("Are you sure you want to delete snippet "+name)){
-            snippetDelete(snippet);
+            snippetDelete(snippet, idx);
           }
        }
     }
@@ -349,8 +374,8 @@ function snippetApply(snippet, show){
         var fldName = "xxSnippet"+prop;
         var fldValue = SNIPPETAPPLY.paramData[prop];
         sb.push('<div class="form-group">');
-        sb.push('<label class="control-label col-xs-3" for="'+fldName+'">'+fldValue.label+':</label>');
-        sb.push('<div class="col-xs-9">');
+        sb.push('<label class="col-xs-12" for="'+fldName+'">'+fldValue.label+':</label>');
+        sb.push('<div class="col-xs-12">');
         if(fldValue.options==null){
             if(fldValue.multiline==true){
                 sb.push('<textarea class="form-control" onkeyup="snippetUpdate()" onchange="snippetUpdate()" rows="5" name="'+fldName+'" id="'+fldName+'">'+fldValue.value+'</textarea>');
@@ -384,39 +409,117 @@ function snippetApply(snippet, show){
     }
 }
 
-function snippetEdit(snippet){
+function snippetEdit(snippet, idx){
     if(snippet!=null){
+        $("#idx").val(idx);
         $("#name").val(snippet.name);
         $("#category").val(snippet.category);
+        $("#description").val(snippet.description);
         $("#code").val(snippet.code);
         $("#paramInfo").val(snippet.paramInfo);
-        $("#overwrite").prop("checked", true);
         snippetEditor(true);
     }
 }
 
-function snippetDelete(snippet){
-    if(snippet!=null){
-        $.ajax({
-            type: "GET",
-            url: "/Default/DeleteSnippet?category="+snippet.category+"&name="+snippet.name,
-            success: function(data)
-            {
-                showAlert("success",true, "snippet deleted!")
-                pullSnippets();
-            },
-            error: function(err){
-                showAlert("danger", false, "snippet could not be deleted - "+err.statusText);
-                console.log(err);
-            }
-        });
+function snippetDelete(snippet, idx){
+    if(snippet!=null && idx>=0 && SNIPPETDATA.length>idx){
+        SNIPPETDATA.splice(idx, 1);
+        buildSnippets(SNIPPETCATEGORY);
     }
-
 }
 
 function snippetEditor(open){
-    var isClosed = $('#snippetToggle').hasClass('collapsed');
-    if(open==isClosed){
-        $('#snippetToggle').click();
+    if (open) {
+        $('#snippetEditor').modal({
+            show: true
+        });
     }
+}
+
+function snippetReady(){
+    $("#btnSnippetBufferClear").click(function () {
+        SNIPPETBUFFER.length = 0;
+        SNIPPETPOSITION = -1;
+        $("#snippetBufferCode").val(SNIPPETBUFFER.join("\n"));
+    });
+
+    $("#btnSnippetBuffer").click(function () {
+        $("#snippetBufferCode").val(SNIPPETBUFFER.join("\n"));
+        $('#snippetBufferModal').modal({
+            show: true
+        });
+    });
+
+    $("#btnGenerate").click(function () {
+        var data = {
+            moduleCode: $("#moduleCode").val(),
+            moduleTitle: $("#moduleTitle").val(),
+            noIncludeCancel: $("#noIncludeCancel").prop("checked"),
+            indexData: $("#indexData").val(),
+            viewGraphUrl: $("#viewGraphUrl").val(),
+            viewKey: $("#viewKey").val(),
+            viewSections: $("#viewSections").val()
+        };
+        localStorage.setItem("genInfo", JSON.stringify(data));
+    });
+
+    $("#btnSnippetNew").click(function (){
+        var snippet = {
+            name: "",
+            category: "",
+            description: "",
+            code: "",
+            paramInfo: ""
+        };
+        snippetEdit(snippet, -1);
+    });
+
+    $("#btnAddSnippet").click(function (e) {
+        var idx = $("#idx").val();
+        var savedata = {
+            name: $("#name").val(),
+            category: $("#category").val(),
+            description: $("#description").val(),
+            code: $("#code").val(),
+            paramInfo: $("#paramInfo").val()
+        };
+
+        if(idx>=0&&SNIPPETDATA.length>idx){
+            SNIPPETDATA[idx]=savedata;
+        }
+        else{
+            idx = SNIPPETDATA.length;
+            $("#idx").val(idx);
+            SNIPPETDATA.push(savedata);
+        }
+        var cat = savedata.category;
+        if(!checkSnippetCategoryExists(cat)){
+            SNIPPETCATEGORIES.push(cat);
+            buildSnippetCategories();
+        }
+        buildSnippets(SNIPPETCATEGORY);
+        e.preventDefault();
+    });
+
+    $("#btnSnippetExport").click(function (e){
+        var text = JSON.stringify(SNIPPETDATA, null, "   ");
+        var uricontent = "data:application/octet-stream," + encodeURIComponent(text);
+        var anchor = document.createElement('a');
+        anchor.setAttribute("download", "codesnippets.json");
+        anchor.setAttribute("href", uricontent);
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
+    });
+
+
+    $("#btnUpdateParameterInfo").click(function (e) {
+        var code = $("#code").val();
+        var paramText = $("#paramInfo").val();
+        var data = snippetCodeParams(code, paramText, true);
+        paramText = JSON.stringify(data, null, '   ');
+        $("#paramInfo").val(paramText);
+    });
+
+    pullSnippets();
 }

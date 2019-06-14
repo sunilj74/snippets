@@ -1,7 +1,0 @@
-{
-  "category": "Form Fields",
-  "name": "dateRange",
-  "paramInfo": "{\r\n   \"fieldid\": {\r\n      \"label\": \"fieldid\",\r\n      \"value\": \"fieldid\",\r\n      \"multiline\": false,\r\n      \"prefix\": \"\",\r\n      \"suffix\": \"\",\r\n      \"options\": null\r\n   },\r\n   \"fieldlabel\": {\r\n      \"label\": \"fieldlabel\",\r\n      \"value\": \"fieldlabel\",\r\n      \"multiline\": false,\r\n      \"prefix\": \"\",\r\n      \"suffix\": \"\",\r\n      \"options\": null\r\n   },\r\n   \"model\": {\r\n      \"label\": \"model\",\r\n      \"value\": \"model\",\r\n      \"multiline\": false,\r\n      \"prefix\": \"\",\r\n      \"suffix\": \"\",\r\n      \"options\": null\r\n   }\r\n}",
-  "code": "<div class=\"form-group  col-xs-12 col-sm-6 col-md-4\">\r\n    <label for=\"[#]fieldid[/#]_from\">[#]fieldlabel[/#]</label>\r\n    <div>\r\n        <table style=\"width: 100%; table-layout: auto;\">\r\n            <tbody>\r\n                <tr>\r\n                    <td><input type=\"date\" class=\"form-control\" id=\"[#]fieldid[/#]_from\" name=\"[#]fieldid[/#]_from\" [(ngModel)]=\"[#]model[/#].[#]fieldid[/#].fromValue\" placeholder=\"from\"></td>\r\n                    <td><input type=\"date\" class=\"form-control\" id=\"[#]fieldid[/#]_to\" name=\"[#]fieldid[/#]_to\" [(ngModel)]=\"[#]model[/#].[#]fieldid[/#].toValue\" placeholder=\"to\"></td>\r\n                </tr>\r\n            </tbody>\r\n        </table>\r\n    </div>\r\n</div>\r\n",
-  "overwrite": true
-}

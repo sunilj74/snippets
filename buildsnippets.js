@@ -3,8 +3,7 @@ const fs = require('fs');
 const snippetsPath = path.join(__dirname, "snippets");
 
 let files = fs.readdirSync(snippetsPath);
-console.log("files", files);
-let data = {};
+let data = [];
 files.forEach(file => {
     let filePath = path.join(snippetsPath, file);
     let fileStats = fs.lstatSync(filePath);
@@ -17,13 +16,13 @@ files.forEach(file => {
             if(catFileText!=''){
                 let catFileData = JSON.parse(catFileText);
                 if(catFileData!=null){
-                    catSnippets[path.parse(catFilePath).name] = catFileData;
+                    catFileData["name"] = path.parse(catFilePath).name;
+                    data.push(catFileData);
                 }
             }
 
         });
-        data[path.parse(filePath).name] = catSnippets;
     }
 });
 console.log('writepath', );
-fs.writeFileSync(path.join(__dirname, 'public/assets/scripts/data.json'), JSON.stringify(data, null, '   '));
+fs.writeFileSync(path.join(__dirname, 'public/assets/scripts/data2.json'), JSON.stringify(data, null, '   '));
